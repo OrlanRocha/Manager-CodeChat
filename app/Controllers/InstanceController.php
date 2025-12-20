@@ -293,6 +293,7 @@ final class InstanceController extends Controller
         $ch = curl_init($url);
         $headers = ['Accept: application/json'];
         $apiKey = $this->config['api']['api_key'] ?? '';
+        $apiJwt = $this->config['api']['api_jwt'] ?? '';
         if ($apiKey === '') {
             return [
                 'success' => false,
@@ -301,6 +302,9 @@ final class InstanceController extends Controller
         }
         if ($apiKey !== '') {
             $headers[] = 'apikey: ' . $apiKey;
+        }
+        if ($apiJwt !== '') {
+            $headers[] = 'Authorization: Bearer ' . $apiJwt;
         }
 
         if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
@@ -355,7 +359,9 @@ final class InstanceController extends Controller
             ]);
             return [
                 'success' => false,
-                'message' => $data['message'] ?? 'Erro ao processar requisição na CodeChat API.',
+                'message' => is_array($data['message'] ?? null)
+                    ? implode(' | ', $data['message'])
+                    : ($data['message'] ?? 'Erro ao processar requisição na CodeChat API.'),
                 'data' => $data,
             ];
         }

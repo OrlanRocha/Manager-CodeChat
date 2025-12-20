@@ -38,6 +38,8 @@ return [
         'timeout' => (int) ($env['API_TIMEOUT'] ?? 20),
         // Chave global da CodeChat API.
         'api_key' => $env['API_KEY'] ?? '',
+        // Token JWT para autenticação.
+        'api_jwt' => $env['API_JWT'] ?? '',
     ],
     'app' => [
         'base_path' => $basePath,
