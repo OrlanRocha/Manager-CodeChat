@@ -311,6 +311,12 @@ final class InstanceController extends Controller
                 'message' => 'Chave global da API não configurada.',
             ];
         }
+        if ($instanceToken === null && $apiJwt === '' && !str_starts_with($path, '/instance/create')) {
+            return [
+                'success' => false,
+                'message' => 'JWT da instância ausente. Conecte novamente para gerar o token.',
+            ];
+        }
         if ($apiKey !== '') {
             $headers[] = 'apikey: ' . $apiKey;
         }
@@ -372,6 +378,13 @@ final class InstanceController extends Controller
                 'payload' => $payload,
                 'response' => $data,
             ]);
+            if ($status === 401) {
+                return [
+                    'success' => false,
+                    'message' => 'Não autorizado (HTTP 401). Verifique API_KEY e o JWT da instância.',
+                    'data' => $data,
+                ];
+            }
             return [
                 'success' => false,
                 'message' => is_array($data['message'] ?? null)
