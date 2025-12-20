@@ -334,6 +334,7 @@ final class InstanceController extends Controller
 
         $response = curl_exec($ch);
         $status = (int) curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        $curlError = curl_error($ch);
         curl_close($ch);
 
         if ($response === false) {
@@ -341,10 +342,11 @@ final class InstanceController extends Controller
                 'path' => $path,
                 'method' => $method,
                 'payload' => $payload,
+                'error' => $curlError,
             ]);
             return [
                 'success' => false,
-                'message' => 'Não foi possível conectar à CodeChat API.',
+                'message' => 'Não foi possível conectar à CodeChat API: ' . ($curlError ?: 'erro desconhecido.'),
             ];
         }
 
@@ -358,7 +360,7 @@ final class InstanceController extends Controller
             ]);
             return [
                 'success' => false,
-                'message' => 'Resposta inválida da CodeChat API.',
+                'message' => 'Resposta inválida da CodeChat API (HTTP ' . $status . ').',
             ];
         }
 
@@ -374,7 +376,7 @@ final class InstanceController extends Controller
                 'success' => false,
                 'message' => is_array($data['message'] ?? null)
                     ? implode(' | ', $data['message'])
-                    : ($data['message'] ?? 'Erro ao processar requisição na CodeChat API.'),
+                    : ($data['message'] ?? 'Erro ao processar requisição na CodeChat API (HTTP ' . $status . ').'),
                 'data' => $data,
             ];
         }
