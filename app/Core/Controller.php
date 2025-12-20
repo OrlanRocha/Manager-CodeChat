@@ -39,8 +39,24 @@ abstract class Controller
     protected function requireAuth(): void
     {
         if (!isset($_SESSION['user_id'])) {
+            if ($this->isApiRequest()) {
+                $this->json([
+                    'success' => false,
+                    'message' => 'Sessão expirada. Faça login novamente.',
+                ], 401);
+                exit;
+            }
+
             header('Location: /login');
             exit;
         }
+    }
+
+    protected function isApiRequest(): bool
+    {
+        $path = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+        return str_starts_with($path, '/instances') || str_contains($accept, 'application/json');
     }
 }

@@ -45,7 +45,7 @@ final class Router
 
             $this->renderError(404);
         } catch (\Throwable $exception) {
-            $this->renderError(500);
+            $this->renderError(500, $exception->getMessage());
         }
     }
 
@@ -77,9 +77,18 @@ final class Router
         $handler(...array_values($params));
     }
 
-    private function renderError(int $code): void
+    private function renderError(int $code, ?string $detail = null): void
     {
         http_response_code($code);
+        if ($this->isApiRequest()) {
+            header('Content-Type: application/json; charset=utf-8');
+            echo json_encode([
+                'success' => false,
+                'message' => $code === 404 ? 'Rota não encontrada.' : 'Erro interno no servidor.',
+                'detail' => $detail,
+            ], JSON_UNESCAPED_UNICODE);
+            return;
+        }
         $path = $this->config['app']['base_path'] . '/app/Views/errors/' . $code . '.php';
         if (file_exists($path)) {
             require $path;
@@ -87,5 +96,13 @@ final class Router
         }
 
         echo $code === 404 ? '404 - Página não encontrada.' : 'Erro interno.';
+    }
+
+    private function isApiRequest(): bool
+    {
+        $path = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
+        $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
+
+        return str_starts_with($path, '/instances') || str_contains($accept, 'application/json');
     }
 }
