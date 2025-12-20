@@ -85,12 +85,12 @@ $router->post('/logout', [AuthController::class, 'logout']);
 $router->get('/dashboard', [InstanceController::class, 'dashboard']);
 $router->get('/logs', [LogController::class, 'index']);
 
-$router->get('/api/instances', [InstanceController::class, 'listInstances']);
-$router->post('/api/instances', [InstanceController::class, 'createInstance']);
-$router->post('/api/instances/{id}/delete', [InstanceController::class, 'deleteInstance']);
-$router->get('/api/instances/{id}/connect', [InstanceController::class, 'connectInstance']);
-$router->get('/api/instances/{id}/status', [InstanceController::class, 'statusInstance']);
-$router->get('/api/instances/{id}/unread', [InstanceController::class, 'unreadCount']);
-$router->post('/api/instances/{id}/test-message', [InstanceController::class, 'testMessage']);
+$router->get('/instances', [InstanceController::class, 'listInstances']);
+$router->post('/instances', [InstanceController::class, 'createInstance']);
+$router->post('/instances/{id}/delete', [InstanceController::class, 'deleteInstance']);
+$router->get('/instances/{id}/connect', [InstanceController::class, 'connectInstance']);
+$router->get('/instances/{id}/status', [InstanceController::class, 'statusInstance']);
+$router->get('/instances/{id}/unread', [InstanceController::class, 'unreadCount']);
+$router->post('/instances/{id}/test-message', [InstanceController::class, 'testMessage']);
 
 $router->dispatch($_SERVER['REQUEST_METHOD'], $_SERVER['REQUEST_URI']);

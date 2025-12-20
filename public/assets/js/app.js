@@ -106,7 +106,7 @@ const renderInstances = (instances = []) => {
 
 const loadInstances = async () => {
     try {
-        const response = await fetchJson('/api/instances');
+        const response = await fetchJson('/instances');
         renderInstances(response.data);
     } catch (error) {
         toast(error.message, '#ef4444');
@@ -144,7 +144,7 @@ const qrPlaceholder = document.getElementById('qr-placeholder');
 
 const fetchQrCode = async (id) => {
     try {
-        const response = await fetchJson(`/api/instances/${id}/connect`);
+        const response = await fetchJson(`/instances/${id}/connect`);
         const qr = response.data.qr;
         if (qr) {
             qrPlaceholder.innerHTML = `<img src="${qr}" alt="QR Code" class="h-56 w-56 rounded-xl object-contain">`;
@@ -169,7 +169,7 @@ const startStatusPolling = () => {
         for (const statusEl of statusEls) {
             const id = statusEl.dataset.id;
             try {
-                const response = await fetchJson(`/api/instances/${id}/status`);
+                const response = await fetchJson(`/instances/${id}/status`);
                 const status = response.data.status;
                 statusEl.textContent = status;
                 const dot = statusEl.previousElementSibling;
@@ -196,7 +196,7 @@ const startUnreadPolling = () => {
         for (const unreadEl of unreadEls) {
             const id = unreadEl.dataset.unread;
             try {
-                const response = await fetchJson(`/api/instances/${id}/unread`);
+                const response = await fetchJson(`/instances/${id}/unread`);
                 const count = response.data.count || 0;
                 unreadEl.textContent = count;
                 total += count;
@@ -246,7 +246,7 @@ const handleInstanceActions = () => {
 
             try {
                 const formData = new FormData();
-                const response = await fetchJson(`/api/instances/${id}/delete`, {
+                const response = await fetchJson(`/instances/${id}/delete`, {
                     method: 'POST',
                     body: formData,
                 });
@@ -289,7 +289,7 @@ const bindCreateInstance = () => {
             }
 
             try {
-                const response = await fetchJson('/api/instances', {
+                const response = await fetchJson('/instances', {
                     method: 'POST',
                     body: formData,
                 });
@@ -325,7 +325,7 @@ const bindTestMessage = () => {
         formData.append('message', message);
 
         try {
-            const response = await fetchJson(`/api/instances/${activeInstanceId}/test-message`, {
+            const response = await fetchJson(`/instances/${activeInstanceId}/test-message`, {
                 method: 'POST',
                 body: formData,
             });

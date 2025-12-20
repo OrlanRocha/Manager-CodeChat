@@ -49,6 +49,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O assistente `/install` cria `.env` e prepara o banco automaticamente.
 - As páginas de erro 404/500 ficam em `app/Views/errors`.
 - A integração com CodeChat usa endpoints `/instance/create`, `/instance/fetchInstances` e `/instance/connectionState`.
+- As rotas internas do painel usam `/instances` (sem prefixo `/api`).
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 
 ## Scripts
