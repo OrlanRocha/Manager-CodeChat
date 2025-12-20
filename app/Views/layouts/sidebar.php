@@ -14,6 +14,10 @@
             <i class="fa-solid fa-chart-line"></i>
             Dashboard
         </a>
+        <a href="/logs" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
+            <i class="fa-solid fa-clipboard-list"></i>
+            Logs
+        </a>
     </nav>
 
     <div class="mt-auto rounded-xl bg-slate-900 text-white p-4 shadow">

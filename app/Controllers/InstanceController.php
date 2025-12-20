@@ -7,9 +7,12 @@ namespace App\Controllers;
 use App\Core\Controller;
 use App\Core\Database;
 use App\Models\Instance;
+use App\Core\Logger;
 
 final class InstanceController extends Controller
 {
+    private ?Logger $logger = null;
+
     public function dashboard(): void
     {
         $this->requireAuth();
@@ -307,6 +310,11 @@ final class InstanceController extends Controller
         curl_close($ch);
 
         if ($response === false) {
+            $this->logger()->error('codechat_api', 'Falha de conexão com a API.', [
+                'path' => $path,
+                'method' => $method,
+                'payload' => $payload,
+            ]);
             return [
                 'success' => false,
                 'message' => 'Não foi possível conectar à CodeChat API.',
@@ -315,6 +323,12 @@ final class InstanceController extends Controller
 
         $data = json_decode($response, true);
         if (json_last_error() !== JSON_ERROR_NONE) {
+            $this->logger()->error('codechat_api', 'Resposta inválida da API.', [
+                'path' => $path,
+                'method' => $method,
+                'payload' => $payload,
+                'response' => $response,
+            ]);
             return [
                 'success' => false,
                 'message' => 'Resposta inválida da CodeChat API.',
@@ -322,6 +336,13 @@ final class InstanceController extends Controller
         }
 
         if ($status >= 400) {
+            $this->logger()->error('codechat_api', 'Erro retornado pela API.', [
+                'path' => $path,
+                'method' => $method,
+                'status' => $status,
+                'payload' => $payload,
+                'response' => $data,
+            ]);
             return [
                 'success' => false,
                 'message' => $data['message'] ?? 'Erro ao processar requisição na CodeChat API.',
@@ -329,10 +350,26 @@ final class InstanceController extends Controller
             ];
         }
 
+        $this->logger()->info('codechat_api', 'Chamada realizada com sucesso.', [
+            'path' => $path,
+            'method' => $method,
+            'status' => $status,
+            'payload' => $payload,
+        ]);
+
         return [
             'success' => true,
             'data' => $data,
         ];
+    }
+
+    private function logger(): Logger
+    {
+        if ($this->logger === null) {
+            $this->logger = new Logger(Database::getInstance($this->config), $this->config);
+        }
+
+        return $this->logger;
     }
 
     private function mapConnectionStatus(string $status): string

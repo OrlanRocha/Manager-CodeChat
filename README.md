@@ -35,6 +35,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 2. Garanta que o `.htaccess` está sendo carregado pelo Apache.
 3. Acesse o projeto via navegador (ex.: `http://localhost`).
 4. Caso não exista `.env` ou o banco esteja indisponível, o sistema redireciona para `/install`.
+5. Acompanhe logs internos em `/logs` e em `storage/logs/app.log`.
 
 ### Credenciais padrão (seeds)
 
@@ -48,11 +49,13 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O assistente `/install` cria `.env` e prepara o banco automaticamente.
 - As páginas de erro 404/500 ficam em `app/Views/errors`.
 - A integração com CodeChat usa endpoints `/instance/create`, `/instance/fetchInstances` e `/instance/connectionState`.
+- O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 
 ## Scripts
 
 - `database.sql` cria as tabelas `users` e `instances`.
 - `seeds.sql` cria usuário admin e instâncias de exemplo.
+- A tabela `logs` é criada junto ao schema principal.
 
 ## Licença
 

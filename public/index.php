@@ -25,6 +25,7 @@ use App\Core\Router;
 use App\Controllers\AuthController;
 use App\Controllers\InstanceController;
 use App\Controllers\InstallController;
+use App\Controllers\LogController;
 use App\Core\Database;
 
 $router = new Router($config);
@@ -32,10 +33,28 @@ $router = new Router($config);
 $currentPath = '/' . trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/', '/');
 $isInstallRoute = str_starts_with($currentPath, '/install');
 $envReady = file_exists($basePath . '/.env');
+if (!$envReady) {
+    $config['app']['is_installed'] = false;
+    $config['db'] = [
+        'host' => 'localhost',
+        'name' => '',
+        'user' => '',
+        'pass' => '',
+        'charset' => 'utf8mb4',
+    ];
+}
 
 if (!$isInstallRoute && $envReady) {
     try {
-        Database::getInstance($config)->connection();
+        $connection = Database::getInstance($config)->connection();
+        $requiredTables = ['users', 'instances', 'logs'];
+        foreach ($requiredTables as $table) {
+            $tableCheck = $connection->query("SHOW TABLES LIKE '{$table}'")->fetch();
+            if (!$tableCheck) {
+                header('Location: /install');
+                exit;
+            }
+        }
     } catch (Throwable $exception) {
         header('Location: /install');
         exit;
@@ -64,6 +83,7 @@ $router->post('/login', [AuthController::class, 'login']);
 $router->post('/logout', [AuthController::class, 'logout']);
 
 $router->get('/dashboard', [InstanceController::class, 'dashboard']);
+$router->get('/logs', [LogController::class, 'index']);
 
 $router->get('/api/instances', [InstanceController::class, 'listInstances']);
 $router->post('/api/instances', [InstanceController::class, 'createInstance']);

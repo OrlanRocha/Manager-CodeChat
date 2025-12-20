@@ -25,3 +25,13 @@ CREATE TABLE IF NOT EXISTS instances (
   status ENUM('connected', 'disconnected', 'pending') NOT NULL DEFAULT 'disconnected',
   created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Tabela de logs de integração
+CREATE TABLE IF NOT EXISTS logs (
+  id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  level ENUM('info', 'error') NOT NULL DEFAULT 'info',
+  context VARCHAR(50) NOT NULL,
+  message VARCHAR(255) NOT NULL,
+  payload JSON DEFAULT NULL,
+  created_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
