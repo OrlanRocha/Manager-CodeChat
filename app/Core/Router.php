@@ -28,22 +28,25 @@ final class Router
     {
         $path = '/' . trim(parse_url($uri, PHP_URL_PATH) ?? '/', '/');
 
-        foreach ($this->routes[$method] ?? [] as $route) {
-            $pattern = $this->compilePattern($route['path']);
-            if (preg_match($pattern, $path, $matches)) {
-                $params = array_filter(
-                    $matches,
-                    static fn ($key) => !is_int($key),
-                    ARRAY_FILTER_USE_KEY
-                );
+        try {
+            foreach ($this->routes[$method] ?? [] as $route) {
+                $pattern = $this->compilePattern($route['path']);
+                if (preg_match($pattern, $path, $matches)) {
+                    $params = array_filter(
+                        $matches,
+                        static fn ($key) => !is_int($key),
+                        ARRAY_FILTER_USE_KEY
+                    );
 
-                $this->invokeHandler($route['handler'], $params);
-                return;
+                    $this->invokeHandler($route['handler'], $params);
+                    return;
+                }
             }
-        }
 
-        http_response_code(404);
-        echo '404 - Página não encontrada.';
+            $this->renderError(404);
+        } catch (\Throwable $exception) {
+            $this->renderError(500);
+        }
     }
 
     private function register(string $method, string $path, callable|array $handler): void
@@ -72,5 +75,17 @@ final class Router
         }
 
         $handler(...array_values($params));
+    }
+
+    private function renderError(int $code): void
+    {
+        http_response_code($code);
+        $path = $this->config['app']['base_path'] . '/app/Views/errors/' . $code . '.php';
+        if (file_exists($path)) {
+            require $path;
+            return;
+        }
+
+        echo $code === 404 ? '404 - Página não encontrada.' : 'Erro interno.';
     }
 }

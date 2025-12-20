@@ -24,13 +24,40 @@ $config = require $basePath . '/config/config.php';
 use App\Core\Router;
 use App\Controllers\AuthController;
 use App\Controllers\InstanceController;
+use App\Controllers\InstallController;
+use App\Core\Database;
 
 $router = new Router($config);
+
+$currentPath = '/' . trim(parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH) ?? '/', '/');
+$isInstallRoute = str_starts_with($currentPath, '/install');
+$envReady = file_exists($basePath . '/.env');
+
+if (!$isInstallRoute && $envReady) {
+    try {
+        Database::getInstance($config)->connection();
+    } catch (Throwable $exception) {
+        header('Location: /install');
+        exit;
+    }
+}
+
+if (!$isInstallRoute && !$envReady) {
+    header('Location: /install');
+    exit;
+}
 
 $router->get('/', function () {
     header('Location: /dashboard');
     exit;
 });
+
+$router->get('/install', [InstallController::class, 'show']);
+$router->post('/install/connect', [InstallController::class, 'connect']);
+$router->post('/install/create-db', [InstallController::class, 'createDatabase']);
+$router->post('/install/write-env', [InstallController::class, 'writeEnv']);
+$router->post('/install/create-tables', [InstallController::class, 'createTables']);
+$router->post('/install/seed', [InstallController::class, 'seed']);
 
 $router->get('/login', [AuthController::class, 'showLogin']);
 $router->post('/login', [AuthController::class, 'login']);

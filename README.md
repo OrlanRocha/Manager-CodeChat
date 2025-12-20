@@ -22,21 +22,19 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 
 ## Configuração
 
-1. Crie o banco e tabelas usando o script:
-
-```sql
--- arquivo database.sql
-```
-
-2. (Opcional) Carregue dados de exemplo com `seeds.sql`.
-
-3. Ajuste as credenciais e URL da API em `config/config.php`.
+1. Acesse `/install` para executar o assistente interativo:
+   - Conectar ao MySQL
+   - Criar banco
+   - Gerar `.env`
+   - Criar tabelas
+   - Importar seeds (opcional)
 
 ## Uso
 
 1. Aponte o DocumentRoot do Apache para a pasta `/public`.
 2. Garanta que o `.htaccess` está sendo carregado pelo Apache.
 3. Acesse o projeto via navegador (ex.: `http://localhost`).
+4. Caso não exista `.env` ou o banco esteja indisponível, o sistema redireciona para `/install`.
 
 ### Credenciais padrão (seeds)
 
@@ -47,10 +45,13 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 
 - As rotas são registradas via `App\Core\Router`.
 - A conexão com o banco usa o singleton `App\Core\Database`.
+- O assistente `/install` cria `.env` e prepara o banco automaticamente.
+- As páginas de erro 404/500 ficam em `app/Views/errors`.
 
 ## Scripts
 
 - `database.sql` cria as tabelas `users` e `instances`.
+- `seeds.sql` cria usuário admin e instâncias de exemplo.
 
 ## Licença
 
