@@ -82,14 +82,15 @@ final class InstallController extends Controller
         }
 
         $envContent = sprintf(
-            "DB_HOST=%s\nDB_NAME=%s\nDB_USER=%s\nDB_PASS=%s\nDB_CHARSET=%s\nAPI_BASE_URL=%s\nAPI_TIMEOUT=%d\n",
+            "DB_HOST=%s\nDB_NAME=%s\nDB_USER=%s\nDB_PASS=%s\nDB_CHARSET=%s\nAPI_BASE_URL=%s\nAPI_TIMEOUT=%d\nAPI_KEY=%s\n",
             $data['host'],
             $data['name'],
             $data['user'],
             $data['pass'],
             $data['charset'],
             $data['api_url'],
-            $data['timeout']
+            $data['timeout'],
+            $data['api_key']
         );
 
         $envPath = $this->config['app']['base_path'] . '/.env';
@@ -165,6 +166,7 @@ final class InstallController extends Controller
             'charset' => trim($input['db_charset'] ?? 'utf8mb4'),
             'api_url' => trim($input['api_url'] ?? 'http://localhost:8084'),
             'timeout' => (int) ($input['api_timeout'] ?? 20),
+            'api_key' => trim($input['api_key'] ?? ''),
         ];
     }
 

@@ -292,6 +292,16 @@ final class InstanceController extends Controller
 
         $ch = curl_init($url);
         $headers = ['Accept: application/json'];
+        $apiKey = $this->config['api']['api_key'] ?? '';
+        if ($apiKey === '') {
+            return [
+                'success' => false,
+                'message' => 'Chave global da API não configurada.',
+            ];
+        }
+        if ($apiKey !== '') {
+            $headers[] = 'apikey: ' . $apiKey;
+        }
 
         if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             $headers[] = 'Content-Type: application/json';

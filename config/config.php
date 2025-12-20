@@ -36,6 +36,8 @@ return [
         'base_url' => $env['API_BASE_URL'] ?? 'http://localhost:8084',
         // Timeout padrão das requisições (em segundos).
         'timeout' => (int) ($env['API_TIMEOUT'] ?? 20),
+        // Chave global da CodeChat API.
+        'api_key' => $env['API_KEY'] ?? '',
     ],
     'app' => [
         'base_path' => $basePath,

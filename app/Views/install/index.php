@@ -47,6 +47,10 @@
                         <label class="text-sm text-slate-600">Timeout API (s)</label>
                         <input name="api_timeout" type="number" class="w-full rounded-xl border border-slate-200 px-3 py-2" value="20">
                     </div>
+                    <div>
+                        <label class="text-sm text-slate-600">Global API Key</label>
+                        <input name="api_key" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Cole a chave global da API">
+                    </div>
                     <div class="flex items-center gap-2 mt-6">
                         <input id="seed" name="seed" type="checkbox" class="rounded text-indigo-600" checked>
                         <label for="seed" class="text-sm text-slate-600">Importar seeds (usuário admin)</label>
