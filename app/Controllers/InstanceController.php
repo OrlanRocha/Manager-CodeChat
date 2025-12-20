@@ -57,6 +57,7 @@ final class InstanceController extends Controller
                     $instanceModel->updateStatus((int) $instance['id'], $status);
                 }
             }
+            unset($instances[$index]['api_key']);
         }
 
         $this->json([

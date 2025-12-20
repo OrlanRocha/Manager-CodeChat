@@ -54,6 +54,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O JWT global opcional é configurado no `.env` como `API_JWT` (definido no assistente).
 - O token JWT de cada instância é salvo em `instances.api_key` após o `POST /instance/create` e usado nas chamadas seguintes (connect/status/send).
 - Em respostas HTTP 401, revise a `API_KEY` global e o JWT da instância.
+- O campo `api_key` não é exposto na listagem de instâncias por segurança.
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 
 ## Scripts
