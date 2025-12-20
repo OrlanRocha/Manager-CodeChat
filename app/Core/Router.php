@@ -70,11 +70,21 @@ final class Router
         if (is_array($handler)) {
             [$class, $method] = $handler;
             $controller = new $class($this->config);
-            $controller->{$method}(...array_values($params));
+            $controller->{$method}(...$this->castParams(array_values($params)));
             return;
         }
 
-        $handler(...array_values($params));
+        $handler(...$this->castParams(array_values($params)));
+    }
+
+    private function castParams(array $params): array
+    {
+        return array_map(static function ($param) {
+            if (is_string($param) && ctype_digit($param)) {
+                return (int) $param;
+            }
+            return $param;
+        }, $params);
     }
 
     private function renderError(int $code, ?string $detail = null): void
