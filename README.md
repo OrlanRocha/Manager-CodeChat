@@ -28,13 +28,20 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 -- arquivo database.sql
 ```
 
-2. Ajuste as credenciais e URL da API em `config/config.php`.
+2. (Opcional) Carregue dados de exemplo com `seeds.sql`.
+
+3. Ajuste as credenciais e URL da API em `config/config.php`.
 
 ## Uso
 
 1. Aponte o DocumentRoot do Apache para a pasta `/public`.
 2. Garanta que o `.htaccess` está sendo carregado pelo Apache.
 3. Acesse o projeto via navegador (ex.: `http://localhost`).
+
+### Credenciais padrão (seeds)
+
+- **E-mail:** `admin@codechat.local`
+- **Senha:** `admin123`
 
 ## Desenvolvimento
 

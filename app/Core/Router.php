@@ -7,6 +7,12 @@ namespace App\Core;
 final class Router
 {
     private array $routes = [];
+    private array $config;
+
+    public function __construct(array $config)
+    {
+        $this->config = $config;
+    }
 
     public function get(string $path, callable|array $handler): void
     {
@@ -60,7 +66,7 @@ final class Router
     {
         if (is_array($handler)) {
             [$class, $method] = $handler;
-            $controller = new $class();
+            $controller = new $class($this->config);
             $controller->{$method}(...array_values($params));
             return;
         }
