@@ -16,7 +16,7 @@ final class LogController extends Controller
 
         $db = Database::getInstance($this->config);
         $logModel = new Log($db);
-        $logs = $logModel->latest(100);
+        $logs = $logModel->latest(200);
 
         $this->view('logs/index', [
             'pageTitle' => 'Logs',

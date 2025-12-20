@@ -49,9 +49,18 @@ final class AuthController extends Controller
             ]);
             return;
         }
+        if (($user['status'] ?? 'active') !== 'active') {
+            $this->view('auth/login', [
+                'pageTitle' => 'Login',
+                'error' => 'Usuário bloqueado. Contate o administrador.',
+                'isAuthPage' => true,
+            ]);
+            return;
+        }
 
         $_SESSION['user_id'] = $user['id'];
         $_SESSION['user_name'] = $user['name'];
+        $_SESSION['user_role'] = $user['role'] ?? 'user';
 
         header('Location: /dashboard');
         exit;

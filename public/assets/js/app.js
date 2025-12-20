@@ -348,4 +348,159 @@ const init = () => {
     startUnreadPolling();
 };
 
-document.addEventListener('DOMContentLoaded', init);
+const initProfile = () => {
+    const profileForm = document.getElementById('profile-form');
+    const passwordForm = document.getElementById('password-form');
+
+    if (profileForm) {
+        profileForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(profileForm);
+            try {
+                const response = await fetchJson('/myprofile/update', { method: 'POST', body: formData });
+                toast(response.message || 'Perfil atualizado.');
+            } catch (error) {
+                toast(error.message, '#ef4444');
+            }
+        });
+    }
+
+    if (passwordForm) {
+        passwordForm.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData(passwordForm);
+            try {
+                const response = await fetchJson('/myprofile/password', { method: 'POST', body: formData });
+                toast(response.message || 'Senha atualizada.');
+                passwordForm.reset();
+            } catch (error) {
+                toast(error.message, '#ef4444');
+            }
+        });
+    }
+};
+
+const initUsers = () => {
+    const table = document.getElementById('users-table');
+    const userModal = document.getElementById('user-modal');
+    const passwordModal = document.getElementById('password-modal');
+    const openUserModal = document.getElementById('open-user-modal');
+    const userForm = document.getElementById('user-form');
+    const passwordUserForm = document.getElementById('password-user-form');
+    const passwordField = document.getElementById('password-field');
+    const userModalTitle = document.getElementById('user-modal-title');
+
+    if (!table) return;
+
+    const loadUsers = async () => {
+        const response = await fetchJson('/users');
+        table.innerHTML = '';
+        response.data.forEach((user) => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td class="py-2 px-3 text-slate-700">${user.name}</td>
+                <td class="py-2 px-3 text-slate-600">${user.email}</td>
+                <td class="py-2 px-3 text-slate-600">${user.role}</td>
+                <td class="py-2 px-3 text-slate-600">${user.status}</td>
+                <td class="py-2 px-3 text-slate-600">${user.created_at || '-'}</td>
+                <td class="py-2 px-3 text-slate-600">${user.updated_at || '-'}</td>
+                <td class="py-2 px-3 text-right space-x-2">
+                    <button class="edit-user text-indigo-600" data-id="${user.id}"><i class="fa-solid fa-pen"></i></button>
+                    <button class="password-user text-emerald-600" data-id="${user.id}"><i class="fa-solid fa-key"></i></button>
+                    <button class="delete-user text-rose-600" data-id="${user.id}"><i class="fa-solid fa-trash"></i></button>
+                </td>
+            `;
+            row.dataset.user = JSON.stringify(user);
+            table.appendChild(row);
+        });
+    };
+
+    const openModal = (modal) => {
+        modal.classList.remove('hidden');
+        modal.classList.add('flex');
+    };
+
+    if (openUserModal) {
+        openUserModal.addEventListener('click', () => {
+            userModalTitle.textContent = 'Novo usuário';
+            userForm.reset();
+            userForm.querySelector('input[name="id"]').value = '';
+            if (passwordField) passwordField.classList.remove('hidden');
+            openModal(userModal);
+        });
+    }
+
+    table.addEventListener('click', async (event) => {
+        const target = event.target.closest('button');
+        if (!target) return;
+        const row = target.closest('tr');
+        if (!row) return;
+        const user = JSON.parse(row.dataset.user || '{}');
+
+        if (target.classList.contains('edit-user')) {
+            userModalTitle.textContent = 'Editar usuário';
+            userForm.querySelector('input[name="id"]').value = user.id;
+            userForm.querySelector('input[name="name"]').value = user.name;
+            userForm.querySelector('input[name="email"]').value = user.email;
+            userForm.querySelector('select[name="role"]').value = user.role;
+            userForm.querySelector('select[name="status"]').value = user.status;
+            if (passwordField) passwordField.classList.add('hidden');
+            openModal(userModal);
+        }
+
+        if (target.classList.contains('password-user')) {
+            passwordUserForm.querySelector('input[name="id"]').value = user.id;
+            openModal(passwordModal);
+        }
+
+        if (target.classList.contains('delete-user')) {
+            const result = await Swal.fire({
+                title: 'Remover usuário?',
+                text: 'Essa ação não poderá ser desfeita.',
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#ef4444',
+                cancelButtonText: 'Cancelar',
+                confirmButtonText: 'Excluir',
+            });
+
+            if (!result.isConfirmed) return;
+            await fetchJson(`/users/${user.id}/delete`, { method: 'POST', body: new FormData() });
+            toast('Usuário removido.');
+            loadUsers();
+        }
+    });
+
+    userForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(userForm);
+        const id = formData.get('id');
+        if (id) {
+            await fetchJson(`/users/${id}/update`, { method: 'POST', body: formData });
+            toast('Usuário atualizado.');
+        } else {
+            await fetchJson('/users', { method: 'POST', body: formData });
+            toast('Usuário criado.');
+        }
+        closeModal(userModal);
+        loadUsers();
+    });
+
+    passwordUserForm.addEventListener('submit', async (event) => {
+        event.preventDefault();
+        const formData = new FormData(passwordUserForm);
+        const id = formData.get('id');
+        await fetchJson(`/users/${id}/password`, { method: 'POST', body: formData });
+        toast('Senha atualizada.');
+        closeModal(passwordModal);
+        passwordUserForm.reset();
+    });
+
+    loadUsers();
+};
+
+document.addEventListener('DOMContentLoaded', () => {
+    init();
+    initProfile();
+    initUsers();
+});

@@ -57,6 +57,14 @@ abstract class Controller
         $path = '/' . trim(parse_url($_SERVER['REQUEST_URI'] ?? '/', PHP_URL_PATH) ?? '/', '/');
         $accept = $_SERVER['HTTP_ACCEPT'] ?? '';
 
-        return str_starts_with($path, '/instances') || str_contains($accept, 'application/json');
+        return str_starts_with($path, '/instances')
+            || str_starts_with($path, '/users')
+            || str_starts_with($path, '/myprofile')
+            || str_contains($accept, 'application/json');
+    }
+
+    protected function isAdmin(): bool
+    {
+        return ($_SESSION['user_role'] ?? 'user') === 'admin';
     }
 }

@@ -19,7 +19,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instances = $instanceModel->all();
+        $instances = $instanceModel->allByUser((int) $_SESSION['user_id'], $this->isAdmin());
 
         $connectedCount = 0;
         foreach ($instances as $instance) {
@@ -43,7 +43,7 @@ final class InstanceController extends Controller
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
 
-        $instances = $instanceModel->all();
+        $instances = $instanceModel->allByUser((int) $_SESSION['user_id'], $this->isAdmin());
         foreach ($instances as $index => $instance) {
             $apiResponse = $this->callCodeChatApi(
                 '/instance/fetchInstances?instanceName=' . urlencode($instance['instance_name']),
@@ -79,7 +79,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $id = $instanceModel->create($name, $description !== '' ? $description : null);
+        $id = $instanceModel->create((int) $_SESSION['user_id'], $name, $description !== '' ? $description : null);
 
         $apiResponse = $this->callCodeChatApi(
             '/instance/create',
@@ -91,6 +91,7 @@ final class InstanceController extends Controller
         );
 
         if (!$apiResponse['success']) {
+            $instanceModel->delete($id);
             $this->json([
                 'success' => false,
                 'message' => $apiResponse['message'],
@@ -122,7 +123,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instance = $instanceModel->find($id);
+        $instance = $instanceModel->findForUser($id, (int) $_SESSION['user_id'], $this->isAdmin());
 
         if (!$instance) {
             $this->json(['success' => false, 'message' => 'Instância não encontrada.'], 404);
@@ -156,7 +157,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instance = $instanceModel->find($id);
+        $instance = $instanceModel->findForUser($id, (int) $_SESSION['user_id'], $this->isAdmin());
 
         if (!$instance) {
             $this->json(['success' => false, 'message' => 'Instância não encontrada.'], 404);
@@ -194,7 +195,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instance = $instanceModel->find($id);
+        $instance = $instanceModel->findForUser($id, (int) $_SESSION['user_id'], $this->isAdmin());
 
         if (!$instance) {
             $this->json(['success' => false, 'message' => 'Instância não encontrada.'], 404);
@@ -234,7 +235,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instance = $instanceModel->find($id);
+        $instance = $instanceModel->findForUser($id, (int) $_SESSION['user_id'], $this->isAdmin());
 
         if (!$instance) {
             $this->json(['success' => false, 'message' => 'Instância não encontrada.'], 404);
@@ -266,7 +267,7 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $instance = $instanceModel->find($id);
+        $instance = $instanceModel->findForUser($id, (int) $_SESSION['user_id'], $this->isAdmin());
 
         if (!$instance) {
             $this->json(['success' => false, 'message' => 'Instância não encontrada.'], 404);
@@ -426,5 +427,4 @@ final class InstanceController extends Controller
             default => 'disconnected',
         };
     }
-
 }

@@ -26,6 +26,8 @@ use App\Controllers\AuthController;
 use App\Controllers\InstanceController;
 use App\Controllers\InstallController;
 use App\Controllers\LogController;
+use App\Controllers\ProfileController;
+use App\Controllers\UserController;
 use App\Core\Database;
 
 $router = new Router($config);
@@ -84,6 +86,16 @@ $router->post('/logout', [AuthController::class, 'logout']);
 
 $router->get('/dashboard', [InstanceController::class, 'dashboard']);
 $router->get('/logs', [LogController::class, 'index']);
+$router->get('/myprofile', [ProfileController::class, 'index']);
+$router->post('/myprofile/update', [ProfileController::class, 'update']);
+$router->post('/myprofile/password', [ProfileController::class, 'updatePassword']);
+
+$router->get('/user', [UserController::class, 'index']);
+$router->get('/users', [UserController::class, 'list']);
+$router->post('/users', [UserController::class, 'create']);
+$router->post('/users/{id}/update', [UserController::class, 'update']);
+$router->post('/users/{id}/password', [UserController::class, 'updatePassword']);
+$router->post('/users/{id}/delete', [UserController::class, 'delete']);
 
 $router->get('/instances', [InstanceController::class, 'listInstances']);
 $router->post('/instances', [InstanceController::class, 'createInstance']);

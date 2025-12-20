@@ -13,6 +13,8 @@
                     <th class="text-left py-2 px-3">Data</th>
                     <th class="text-left py-2 px-3">Nível</th>
                     <th class="text-left py-2 px-3">Contexto</th>
+                    <th class="text-left py-2 px-3">Usuário</th>
+                    <th class="text-left py-2 px-3">IP</th>
                     <th class="text-left py-2 px-3">Mensagem</th>
                 </tr>
             </thead>
@@ -26,12 +28,14 @@
                             </span>
                         </td>
                         <td class="py-2 px-3 text-slate-600"><?= htmlspecialchars($log['context'], ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="py-2 px-3 text-slate-600"><?= htmlspecialchars($log['user_name'] ?? 'Sistema', ENT_QUOTES, 'UTF-8') ?></td>
+                        <td class="py-2 px-3 text-slate-600"><?= htmlspecialchars($log['ip_address'] ?? '-', ENT_QUOTES, 'UTF-8') ?></td>
                         <td class="py-2 px-3 text-slate-700"><?= htmlspecialchars($log['message'], ENT_QUOTES, 'UTF-8') ?></td>
                     </tr>
                 <?php endforeach; ?>
                 <?php if (empty($logs)): ?>
                     <tr>
-                        <td colspan="4" class="py-6 text-center text-slate-500">Nenhum log registrado.</td>
+                        <td colspan="6" class="py-6 text-center text-slate-500">Nenhum log registrado.</td>
                     </tr>
                 <?php endif; ?>
             </tbody>

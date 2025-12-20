@@ -36,6 +36,8 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 3. Acesse o projeto via navegador (ex.: `http://localhost`).
 4. Caso não exista `.env` ou o banco esteja indisponível, o sistema redireciona para `/install`.
 5. Acompanhe logs internos em `/logs` e em `storage/logs/app.log`.
+6. Acesse `/myprofile` para atualizar dados da conta e senha.
+7. Acesse `/user` para gerenciar usuários (apenas admin).
 
 ### Credenciais padrão (seeds)
 
@@ -55,7 +57,9 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O token JWT de cada instância é salvo em `instances.api_key` após o `POST /instance/create` e usado nas chamadas seguintes (connect/status/send).
 - Em respostas HTTP 401, revise a `API_KEY` global e o JWT da instância.
 - O campo `api_key` não é exposto na listagem de instâncias por segurança.
+- Cada instância é vinculada ao usuário criador e só é visível para ele (admin visualiza todas).
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
+- A tela de usuários permite criar, editar, bloquear e excluir contas.
 
 ## Scripts
 

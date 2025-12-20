@@ -15,18 +15,25 @@ final class Instance
         $this->db = $db;
     }
 
-    public function all(): array
+    public function allByUser(int $userId, bool $isAdmin = false): array
     {
-        $stmt = $this->db->connection()->query('SELECT * FROM instances ORDER BY created_at DESC');
+        if ($isAdmin) {
+            $stmt = $this->db->connection()->query('SELECT * FROM instances ORDER BY created_at DESC');
+            return $stmt->fetchAll();
+        }
+
+        $stmt = $this->db->connection()->prepare('SELECT * FROM instances WHERE user_id = :user_id ORDER BY created_at DESC');
+        $stmt->execute(['user_id' => $userId]);
         return $stmt->fetchAll();
     }
 
-    public function create(string $name, ?string $description = null, ?string $apiKey = null, ?string $webhookUrl = null): int
+    public function create(int $userId, string $name, ?string $description = null, ?string $apiKey = null, ?string $webhookUrl = null): int
     {
         $stmt = $this->db->connection()->prepare(
-            'INSERT INTO instances (instance_name, description, api_key, webhook_url, status) VALUES (:name, :description, :api_key, :webhook, :status)'
+            'INSERT INTO instances (user_id, instance_name, description, api_key, webhook_url, status) VALUES (:user_id, :name, :description, :api_key, :webhook, :status)'
         );
         $stmt->execute([
+            'user_id' => $userId,
             'name' => $name,
             'description' => $description,
             'api_key' => $apiKey,
@@ -47,6 +54,22 @@ final class Instance
     {
         $stmt = $this->db->connection()->prepare('SELECT * FROM instances WHERE id = :id');
         $stmt->execute(['id' => $id]);
+        $instance = $stmt->fetch();
+
+        return $instance ?: null;
+    }
+
+    public function findForUser(int $id, int $userId, bool $isAdmin = false): ?array
+    {
+        if ($isAdmin) {
+            return $this->find($id);
+        }
+
+        $stmt = $this->db->connection()->prepare('SELECT * FROM instances WHERE id = :id AND user_id = :user_id');
+        $stmt->execute([
+            'id' => $id,
+            'user_id' => $userId,
+        ]);
         $instance = $stmt->fetch();
 
         return $instance ?: null;

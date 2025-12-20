@@ -14,6 +14,16 @@
             <i class="fa-solid fa-chart-line"></i>
             Dashboard
         </a>
+        <a href="/myprofile" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
+            <i class="fa-solid fa-user"></i>
+            Meu perfil
+        </a>
+        <?php if (($_SESSION['user_role'] ?? 'user') === 'admin'): ?>
+            <a href="/user" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
+                <i class="fa-solid fa-users"></i>
+                Usuários
+            </a>
+        <?php endif; ?>
         <a href="/logs" class="flex items-center gap-3 rounded-xl px-3 py-2 text-sm font-medium text-slate-700 hover:bg-indigo-50 hover:text-indigo-700">
             <i class="fa-solid fa-clipboard-list"></i>
             Logs
