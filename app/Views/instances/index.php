@@ -45,6 +45,10 @@
             <label class="text-sm text-slate-600">Nome da instância</label>
             <input id="instance-name" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="ex: vendas-suporte">
         </div>
+        <div class="space-y-3 mt-4">
+            <label class="text-sm text-slate-600">Descrição</label>
+            <input id="instance-description" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500" placeholder="Equipe de suporte e vendas">
+        </div>
         <div class="flex justify-end gap-3 mt-6">
             <button class="px-4 py-2 rounded-xl text-sm text-slate-600 hover:bg-slate-100" data-close-modal>Cancelar</button>
             <button id="create-instance" class="px-4 py-2 rounded-xl text-sm font-semibold bg-indigo-600 text-white hover:bg-indigo-500">Criar</button>

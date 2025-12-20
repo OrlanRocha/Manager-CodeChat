@@ -19,6 +19,7 @@ CREATE TABLE IF NOT EXISTS users (
 CREATE TABLE IF NOT EXISTS instances (
   id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
   instance_name VARCHAR(100) NOT NULL UNIQUE,
+  description VARCHAR(255) DEFAULT NULL,
   api_key VARCHAR(255) DEFAULT NULL,
   webhook_url VARCHAR(255) DEFAULT NULL,
   status ENUM('connected', 'disconnected', 'pending') NOT NULL DEFAULT 'disconnected',

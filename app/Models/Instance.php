@@ -21,13 +21,14 @@ final class Instance
         return $stmt->fetchAll();
     }
 
-    public function create(string $name, ?string $apiKey = null, ?string $webhookUrl = null): int
+    public function create(string $name, ?string $description = null, ?string $apiKey = null, ?string $webhookUrl = null): int
     {
         $stmt = $this->db->connection()->prepare(
-            'INSERT INTO instances (instance_name, api_key, webhook_url, status) VALUES (:name, :api_key, :webhook, :status)'
+            'INSERT INTO instances (instance_name, description, api_key, webhook_url, status) VALUES (:name, :description, :api_key, :webhook, :status)'
         );
         $stmt->execute([
             'name' => $name,
+            'description' => $description,
             'api_key' => $apiKey,
             'webhook' => $webhookUrl,
             'status' => 'pending',

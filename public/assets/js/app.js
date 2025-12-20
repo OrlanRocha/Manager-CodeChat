@@ -65,12 +65,14 @@ const renderInstances = (instances = []) => {
             connected += 1;
         }
 
+        const description = instance.description ? `<p class="text-xs text-slate-400 mt-1">${instance.description}</p>` : '';
         const card = document.createElement('div');
         card.className = 'rounded-2xl border border-slate-100 bg-slate-50 p-5 shadow-sm flex flex-col gap-4';
         card.innerHTML = `
             <div class="flex items-start justify-between">
                 <div>
                     <h3 class="text-lg font-semibold text-slate-900">${instance.instance_name}</h3>
+                    ${description}
                     <div class="flex items-center gap-2 text-sm text-slate-500">
                         <span class="h-2 w-2 rounded-full ${statusColor}"></span>
                         <span class="instance-status" data-id="${instance.id}">${instance.status}</span>
@@ -261,10 +263,12 @@ const bindCreateInstance = () => {
     const openCreateBtn = document.getElementById('open-create');
     const createBtn = document.getElementById('create-instance');
     const nameInput = document.getElementById('instance-name');
+    const descriptionInput = document.getElementById('instance-description');
 
     if (openCreateBtn) {
         openCreateBtn.addEventListener('click', () => {
             if (nameInput) nameInput.value = '';
+            if (descriptionInput) descriptionInput.value = '';
             openModal(createModal);
         });
     }
@@ -279,6 +283,10 @@ const bindCreateInstance = () => {
 
             const formData = new FormData();
             formData.append('name', name);
+            const description = descriptionInput?.value.trim();
+            if (description) {
+                formData.append('description', description);
+            }
 
             try {
                 const response = await fetchJson('/api/instances', {

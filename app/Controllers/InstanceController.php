@@ -40,9 +40,25 @@ final class InstanceController extends Controller
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
 
+        $instances = $instanceModel->all();
+        foreach ($instances as $index => $instance) {
+            $apiResponse = $this->callCodeChatApi(
+                '/instance/fetchInstances?instanceName=' . urlencode($instance['instance_name']),
+                'GET'
+            );
+            if ($apiResponse['success']) {
+                $statusRaw = $apiResponse['data']['connectionStatus'] ?? $apiResponse['data']['state'] ?? null;
+                if ($statusRaw) {
+                    $status = $this->mapConnectionStatus((string) $statusRaw);
+                    $instances[$index]['status'] = $status;
+                    $instanceModel->updateStatus((int) $instance['id'], $status);
+                }
+            }
+        }
+
         $this->json([
             'success' => true,
-            'data' => $instanceModel->all(),
+            'data' => $instances,
         ]);
     }
 
@@ -51,6 +67,7 @@ final class InstanceController extends Controller
         $this->requireAuth();
 
         $name = trim($_POST['name'] ?? '');
+        $description = trim($_POST['description'] ?? '');
         if ($name === '') {
             $this->json(['success' => false, 'message' => 'Informe o nome da instância.'], 422);
             return;
@@ -58,11 +75,15 @@ final class InstanceController extends Controller
 
         $db = Database::getInstance($this->config);
         $instanceModel = new Instance($db);
-        $id = $instanceModel->create($name);
+        $id = $instanceModel->create($name, $description !== '' ? $description : null);
 
         $apiResponse = $this->callCodeChatApi(
-            sprintf('/instance/create/%s', urlencode($name)),
-            'POST'
+            '/instance/create',
+            'POST',
+            array_filter([
+                'instanceName' => $name,
+                'description' => $description !== '' ? $description : null,
+            ])
         );
 
         if (!$apiResponse['success']) {
@@ -79,6 +100,7 @@ final class InstanceController extends Controller
             'data' => [
                 'id' => $id,
                 'instance_name' => $name,
+                'description' => $description !== '' ? $description : null,
                 'status' => 'pending',
             ],
         ]);
@@ -144,7 +166,7 @@ final class InstanceController extends Controller
             return;
         }
 
-        $qrCode = $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? null;
+        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? null;
 
         $this->json([
             'success' => true,
@@ -168,7 +190,7 @@ final class InstanceController extends Controller
         }
 
         $apiResponse = $this->callCodeChatApi(
-            sprintf('/instance/status/%s', urlencode($instance['instance_name'])),
+            sprintf('/instance/connectionState/%s', urlencode($instance['instance_name'])),
             'GET'
         );
 
@@ -180,7 +202,8 @@ final class InstanceController extends Controller
             return;
         }
 
-        $status = $apiResponse['data']['status'] ?? $apiResponse['data']['state'] ?? 'disconnected';
+        $statusRaw = $apiResponse['data']['state'] ?? $apiResponse['data']['status'] ?? 'disconnected';
+        $status = $this->mapConnectionStatus($statusRaw);
         $instanceModel->updateStatus($id, $status);
 
         $this->json([
@@ -204,26 +227,14 @@ final class InstanceController extends Controller
             return;
         }
 
-        $apiResponse = $this->callCodeChatApi(
-            sprintf('/messages/unread/%s', urlencode($instance['instance_name'])),
-            'GET'
-        );
-
-        if (!$apiResponse['success']) {
-            $this->json([
-                'success' => false,
-                'message' => $apiResponse['message'],
-            ], 502);
-            return;
-        }
-
-        $count = (int) ($apiResponse['data']['count'] ?? 0);
+        $count = 0;
 
         $this->json([
             'success' => true,
             'data' => [
                 'count' => $count,
             ],
+            'message' => 'Contagem indisponível. Configure um endpoint dedicado.',
         ]);
     }
 
@@ -322,5 +333,15 @@ final class InstanceController extends Controller
             'success' => true,
             'data' => $data,
         ];
+    }
+
+    private function mapConnectionStatus(string $status): string
+    {
+        $normalized = strtolower($status);
+        return match ($normalized) {
+            'open', 'online', 'connected' => 'connected',
+            'connecting', 'pending' => 'pending',
+            default => 'disconnected',
+        };
     }
 }
