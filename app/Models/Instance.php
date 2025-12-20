@@ -60,4 +60,13 @@ final class Instance
             'id' => $id,
         ]);
     }
+
+    public function updateToken(int $id, string $token): void
+    {
+        $stmt = $this->db->connection()->prepare('UPDATE instances SET api_key = :token WHERE id = :id');
+        $stmt->execute([
+            'token' => $token,
+            'id' => $id,
+        ]);
+    }
 }

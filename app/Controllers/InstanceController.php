@@ -84,7 +84,7 @@ final class InstanceController extends Controller
             '/instance/create',
             'POST',
             array_filter([
-                'instanceName' => $name,
+                'name' => $name,
                 'description' => $description !== '' ? $description : null,
             ])
         );
@@ -97,6 +97,11 @@ final class InstanceController extends Controller
             return;
         }
 
+        $token = $apiResponse['data']['Auth']['token'] ?? null;
+        if ($token) {
+            $instanceModel->updateToken($id, $token);
+        }
+
         $this->json([
             'success' => true,
             'message' => 'Instância criada com sucesso.',
@@ -104,6 +109,7 @@ final class InstanceController extends Controller
                 'id' => $id,
                 'instance_name' => $name,
                 'description' => $description !== '' ? $description : null,
+                'token' => $token,
                 'status' => 'pending',
             ],
         ]);
@@ -158,7 +164,9 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/connect/%s', urlencode($instance['instance_name'])),
-            'GET'
+            'GET',
+            [],
+            $instance['api_key'] ?? null
         );
 
         if (!$apiResponse['success']) {
@@ -194,7 +202,9 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/connectionState/%s', urlencode($instance['instance_name'])),
-            'GET'
+            'GET',
+            [],
+            $instance['api_key'] ?? null
         );
 
         if (!$apiResponse['success']) {
@@ -268,7 +278,8 @@ final class InstanceController extends Controller
             [
                 'number' => $to,
                 'text' => $message,
-            ]
+            ],
+            $instance['api_key'] ?? null
         );
 
         if (!$apiResponse['success']) {
@@ -285,7 +296,7 @@ final class InstanceController extends Controller
         ]);
     }
 
-    private function callCodeChatApi(string $path, string $method, array $payload = []): array
+    private function callCodeChatApi(string $path, string $method, array $payload = [], ?string $instanceToken = null): array
     {
         $baseUrl = rtrim($this->config['api']['base_url'], '/');
         $url = $baseUrl . $path;
@@ -303,7 +314,9 @@ final class InstanceController extends Controller
         if ($apiKey !== '') {
             $headers[] = 'apikey: ' . $apiKey;
         }
-        if ($apiJwt !== '') {
+        if ($instanceToken) {
+            $headers[] = 'Authorization: Bearer ' . $instanceToken;
+        } elseif ($apiJwt !== '') {
             $headers[] = 'Authorization: Bearer ' . $apiJwt;
         }
 
@@ -397,4 +410,5 @@ final class InstanceController extends Controller
             default => 'disconnected',
         };
     }
+
 }

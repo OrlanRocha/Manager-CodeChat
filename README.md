@@ -51,7 +51,8 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - A integração com CodeChat usa endpoints `/instance/create`, `/instance/fetchInstances` e `/instance/connectionState`.
 - As rotas internas do painel usam `/instances` (sem prefixo `/api`).
 - A chave global da API é configurada no `.env` como `API_KEY` (definida no assistente de instalação).
-- O JWT da API é configurado no `.env` como `API_JWT` (definido no assistente).
+- O JWT global opcional é configurado no `.env` como `API_JWT` (definido no assistente).
+- O token JWT de cada instância é salvo em `instances.api_key` após o `POST /instance/create` e usado nas chamadas seguintes (connect/status/send).
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 
 ## Scripts
