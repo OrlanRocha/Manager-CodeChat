@@ -61,6 +61,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O payload de criação inclui `name` e `instanceName` para compatibilidade com CodeChat v1 e Evolution API.
 - Defina `API_INTEGRATION=evolution-api` no `.env` (ou pelo instalador) para evitar o erro “Invalid integration”. Por padrão usamos `evolution-api`.
 - A criação de instâncias envia `qrcode=true` e `integration=WHATSAPP-BAILEYS` conforme a documentação da Evolution API.
+- As rotas internas usam `GET /instances/{id}/status` e `GET /instances/{id}/connect` seguindo os endpoints `/instance/connectionState` e `/instance/connect` com `apikey`.
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 - A tela de usuários permite criar, editar, bloquear e excluir contas.
 

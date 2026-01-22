@@ -46,11 +46,11 @@ final class InstanceController extends Controller
         $instances = $instanceModel->allByUser((int) $_SESSION['user_id'], $this->isAdmin());
         foreach ($instances as $index => $instance) {
             $apiResponse = $this->callCodeChatApi(
-                '/instance/fetchInstances?instanceName=' . urlencode($instance['instance_name']),
+                '/instance/fetchInstances',
                 'GET'
             );
             if ($apiResponse['success']) {
-                $statusRaw = $apiResponse['data']['connectionStatus'] ?? $apiResponse['data']['state'] ?? null;
+                $statusRaw = $this->extractInstanceStatus($apiResponse['data'], $instance['instance_name']);
                 if ($statusRaw) {
                     $status = $this->mapConnectionStatus((string) $statusRaw);
                     $instances[$index]['status'] = $status;
@@ -139,7 +139,9 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/delete/%s', urlencode($instance['instance_name'])),
-            'DELETE'
+            'DELETE',
+            [],
+            $instance['api_key'] ?? null
         );
 
         if (!$apiResponse['success']) {
@@ -224,7 +226,7 @@ final class InstanceController extends Controller
             return;
         }
 
-        $statusRaw = $apiResponse['data']['state'] ?? $apiResponse['data']['status'] ?? 'disconnected';
+        $statusRaw = $this->extractConnectionStatus($apiResponse['data']);
         $status = $this->mapConnectionStatus($statusRaw);
         $instanceModel->updateStatus($id, $status);
 
@@ -435,8 +437,40 @@ final class InstanceController extends Controller
         return match ($normalized) {
             'open', 'online', 'connected' => 'connected',
             'connecting', 'pending' => 'pending',
+            'close', 'closed', 'offline', 'disconnected' => 'disconnected',
             default => 'disconnected',
         };
+    }
+
+    private function extractInstanceStatus($data, string $instanceName): ?string
+    {
+        if (isset($data['connectionStatus'])) {
+            return (string) $data['connectionStatus'];
+        }
+        if (isset($data['state'])) {
+            return (string) $data['state'];
+        }
+        if (isset($data['status'])) {
+            return (string) $data['status'];
+        }
+        if (is_array($data)) {
+            foreach ($data as $item) {
+                if (!is_array($item)) {
+                    continue;
+                }
+                $name = $item['instanceName'] ?? $item['name'] ?? $item['instance_name'] ?? null;
+                if ($name === $instanceName) {
+                    return (string) ($item['connectionStatus'] ?? $item['state'] ?? $item['status'] ?? null);
+                }
+            }
+        }
+
+        return null;
+    }
+
+    private function extractConnectionStatus(array $data): string
+    {
+        return (string) ($data['state'] ?? $data['status'] ?? $data['connectionStatus'] ?? 'disconnected');
     }
 
     private function extractApiMessage(array $data, int $status): string
