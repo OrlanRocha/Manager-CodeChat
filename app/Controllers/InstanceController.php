@@ -219,6 +219,23 @@ final class InstanceController extends Controller
         );
 
         if (!$apiResponse['success']) {
+            $fallback = $this->callCodeChatApi('/instance/fetchInstances', 'GET');
+            if ($fallback['success']) {
+                $statusRaw = $this->extractInstanceStatus($fallback['data'], $instance['instance_name']);
+                $status = $this->mapConnectionStatus((string) ($statusRaw ?? 'disconnected'));
+                $instanceModel->updateStatus($id, $status);
+
+                $this->json([
+                    'success' => true,
+                    'data' => [
+                        'status' => $status,
+                    ],
+                ]);
+                return;
+            }
+        }
+
+        if (!$apiResponse['success']) {
             $this->json([
                 'success' => false,
                 'message' => $apiResponse['message'],
