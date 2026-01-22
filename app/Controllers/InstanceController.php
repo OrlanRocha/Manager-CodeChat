@@ -89,6 +89,8 @@ final class InstanceController extends Controller
                 'name' => $name,
                 'instanceName' => $name,
                 'description' => $description !== '' ? $description : null,
+                'qrcode' => true,
+                'integration' => 'WHATSAPP-BAILEYS',
             ])
         );
 
@@ -101,10 +103,12 @@ final class InstanceController extends Controller
             return;
         }
 
-        $token = $apiResponse['data']['Auth']['token'] ?? null;
+        $token = $apiResponse['data']['Auth']['token'] ?? $apiResponse['data']['auth']['token'] ?? $apiResponse['data']['token'] ?? null;
         if ($token) {
             $instanceModel->updateToken($id, $token);
         }
+
+        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? $apiResponse['data']['qrcode'] ?? null;
 
         $this->json([
             'success' => true,
@@ -114,6 +118,7 @@ final class InstanceController extends Controller
                 'instance_name' => $name,
                 'description' => $description !== '' ? $description : null,
                 'token' => $token,
+                'qr' => $qrCode,
                 'status' => 'pending',
             ],
         ]);
@@ -181,7 +186,7 @@ final class InstanceController extends Controller
             return;
         }
 
-        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? null;
+        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? $apiResponse['data']['qrcode'] ?? null;
 
         $this->json([
             'success' => true,
