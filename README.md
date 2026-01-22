@@ -65,6 +65,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O status usa fallback automático para `/instance/fetchInstances` quando o endpoint de estado não responde corretamente.
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 - A tela de usuários permite criar, editar, bloquear e excluir contas.
+- A coleção Postman da Evolution API v2.2.2 está disponível em `Evolution API - v2.2.2.postman_collection.json`.
 
 ## Scripts
 
