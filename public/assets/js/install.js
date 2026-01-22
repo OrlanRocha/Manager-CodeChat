@@ -19,6 +19,20 @@ const toast = (message, color = '#4f46e5') => {
     }).showToast();
 };
 
+const showError = (message) => {
+    if (window.Swal) {
+        Swal.fire({
+            title: 'Erro',
+            text: message,
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+        });
+        return;
+    }
+
+    toast(message, '#ef4444');
+};
+
 const setStepStatus = (step, status) => {
     const item = stepsList?.querySelector(`[data-step="${step}"] span`);
     if (!item) return;
@@ -67,7 +81,7 @@ const runSteps = async (formData, includeSeed) => {
             setStepStatus(step.key, 'done');
         } catch (error) {
             setStepStatus(step.key, 'error');
-            toast(error.message, '#ef4444');
+            showError(error.message);
             throw error;
         }
     }

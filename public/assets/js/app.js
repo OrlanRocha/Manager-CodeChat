@@ -28,12 +28,35 @@ const toast = (message, color = '#4f46e5') => {
     }).showToast();
 };
 
+let sessionExpiredHandled = false;
+
+const showError = (message) => {
+    if (window.Swal) {
+        Swal.fire({
+            title: 'Erro',
+            text: message,
+            icon: 'error',
+            confirmButtonColor: '#ef4444',
+        });
+        return;
+    }
+
+    toast(message, '#ef4444');
+};
+
 const fetchJson = async (url, options = {}) => {
     showLoading();
     try {
         const response = await fetch(url, options);
         const data = await response.json();
         if (!response.ok) {
+            if (response.status === 401 && !sessionExpiredHandled) {
+                sessionExpiredHandled = true;
+                showError(data.message || 'Sessão expirada. Faça login novamente.');
+                setTimeout(() => {
+                    window.location.href = '/login';
+                }, 1200);
+            }
             throw new Error(data.message || 'Erro inesperado.');
         }
         return data;
@@ -109,7 +132,7 @@ const loadInstances = async () => {
         const response = await fetchJson('/instances');
         renderInstances(response.data);
     } catch (error) {
-        toast(error.message, '#ef4444');
+        showError(error.message);
     }
 };
 
@@ -152,7 +175,7 @@ const fetchQrCode = async (id) => {
             qrPlaceholder.innerHTML = '<span class="text-sm text-slate-500">QR Code indisponível.</span>';
         }
     } catch (error) {
-        toast(error.message, '#ef4444');
+        showError(error.message);
     }
 };
 
@@ -253,7 +276,7 @@ const handleInstanceActions = () => {
                 toast(response.message || 'Instância removida.');
                 await loadInstances();
             } catch (error) {
-                toast(error.message, '#ef4444');
+                showError(error.message);
             }
         }
     });
@@ -277,7 +300,7 @@ const bindCreateInstance = () => {
         createBtn.addEventListener('click', async () => {
             const name = nameInput?.value.trim();
             if (!name) {
-                toast('Informe o nome da instância.', '#ef4444');
+                showError('Informe o nome da instância.');
                 return;
             }
 
@@ -297,7 +320,7 @@ const bindCreateInstance = () => {
                 closeModal(createModal);
                 await loadInstances();
             } catch (error) {
-                toast(error.message, '#ef4444');
+                showError(error.message);
             }
         });
     }
@@ -316,7 +339,7 @@ const bindTestMessage = () => {
         const message = messageInput?.value.trim();
 
         if (!number || !message) {
-            toast('Preencha número e mensagem.', '#ef4444');
+            showError('Preencha número e mensagem.');
             return;
         }
 
@@ -332,7 +355,7 @@ const bindTestMessage = () => {
             toast(response.message || 'Mensagem enviada.', '#10b981');
             closeModal(testModal);
         } catch (error) {
-            toast(error.message, '#ef4444');
+            showError(error.message);
         }
     });
 };
@@ -360,7 +383,7 @@ const initProfile = () => {
                 const response = await fetchJson('/myprofile/update', { method: 'POST', body: formData });
                 toast(response.message || 'Perfil atualizado.');
             } catch (error) {
-                toast(error.message, '#ef4444');
+                showError(error.message);
             }
         });
     }
@@ -374,7 +397,7 @@ const initProfile = () => {
                 toast(response.message || 'Senha atualizada.');
                 passwordForm.reset();
             } catch (error) {
-                toast(error.message, '#ef4444');
+                showError(error.message);
             }
         });
     }

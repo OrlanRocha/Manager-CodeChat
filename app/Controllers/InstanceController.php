@@ -194,7 +194,12 @@ final class InstanceController extends Controller
             return;
         }
 
-        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? $apiResponse['data']['qrcode'] ?? null;
+        $qrCode = $apiResponse['data']['qrcode']['base64']
+            ?? $apiResponse['data']['base64']
+            ?? $apiResponse['data']['qr']
+            ?? $apiResponse['data']['qrCode']
+            ?? $apiResponse['data']['qrcode']
+            ?? null;
 
         $this->json([
             'success' => true,

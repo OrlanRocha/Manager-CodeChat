@@ -59,7 +59,8 @@ abstract class Controller
 
         return str_starts_with($path, '/instances')
             || str_starts_with($path, '/users')
-            || str_starts_with($path, '/myprofile')
+            || $path === '/myprofile/update'
+            || $path === '/myprofile/password'
             || str_contains($accept, 'application/json');
     }
 
