@@ -37,7 +37,7 @@
                         <input name="db_charset" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" value="utf8mb4">
                     </div>
                     <div>
-                        <label class="text-sm text-slate-600">CodeChat API URL</label>
+                        <label class="text-sm text-slate-600">Evolution API URL</label>
                         <input name="api_url" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" value="http://localhost:8084">
                     </div>
                 </div>
@@ -50,17 +50,14 @@
                     <div>
                         <label class="text-sm text-slate-600">Integração</label>
                         <select name="api_integration" class="w-full rounded-xl border border-slate-200 px-3 py-2">
-                            <option value="codechat">CodeChat</option>
-                            <option value="evolution-api" selected>Evolution API</option>
+                            <option value="WHATSAPP-BAILEYS" selected>WHATSAPP-BAILEYS</option>
+                            <option value="WHATSAPP-BUSINESS">WHATSAPP-BUSINESS</option>
+                            <option value="EVOLUTION">EVOLUTION</option>
                         </select>
                     </div>
                     <div>
                         <label class="text-sm text-slate-600">Global API Key</label>
                         <input name="api_key" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Cole a chave global da API">
-                    </div>
-                    <div>
-                        <label class="text-sm text-slate-600">JWT Token</label>
-                        <input name="api_jwt" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Token JWT para autenticação">
                     </div>
                     <div class="flex items-center gap-2 mt-6">
                         <input id="seed" name="seed" type="checkbox" class="rounded text-indigo-600" checked>

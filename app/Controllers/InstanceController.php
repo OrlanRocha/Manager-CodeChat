@@ -47,7 +47,9 @@ final class InstanceController extends Controller
         foreach ($instances as $index => $instance) {
             $apiResponse = $this->callCodeChatApi(
                 '/instance/fetchInstances',
-                'GET'
+                'GET',
+                [],
+                $instance['api_key'] ?: null
             );
             if ($apiResponse['success']) {
                 $statusRaw = $this->extractInstanceStatus($apiResponse['data'], $instance['instance_name']);
@@ -81,18 +83,16 @@ final class InstanceController extends Controller
         $instanceModel = new Instance($db);
         $id = $instanceModel->create((int) $_SESSION['user_id'], $name, $description !== '' ? $description : null);
 
-        $apiResponse = $this->callCodeChatApi(
-            '/instance/create',
-            'POST',
-            array_filter([
-                // Compatível com CodeChat v1 e Evolution API
-                'name' => $name,
-                'instanceName' => $name,
-                'description' => $description !== '' ? $description : null,
-                'qrcode' => true,
-                'integration' => 'WHATSAPP-BAILEYS',
-            ])
-        );
+        $payload = [
+            'instanceName' => $name,
+            'qrcode' => true,
+        ];
+        $integration = $this->config['api']['integration'] ?? '';
+        if ($integration !== '') {
+            $payload['integration'] = $integration;
+        }
+
+        $apiResponse = $this->callCodeChatApi('/instance/create', 'POST', $payload);
 
         if (!$apiResponse['success']) {
             $instanceModel->delete($id);
@@ -103,12 +103,22 @@ final class InstanceController extends Controller
             return;
         }
 
-        $token = $apiResponse['data']['Auth']['token'] ?? $apiResponse['data']['auth']['token'] ?? $apiResponse['data']['token'] ?? null;
+        $token = $apiResponse['data']['hash']
+            ?? $apiResponse['data']['apikey']
+            ?? $apiResponse['data']['Auth']['token']
+            ?? $apiResponse['data']['auth']['token']
+            ?? $apiResponse['data']['token']
+            ?? null;
         if ($token) {
             $instanceModel->updateToken($id, $token);
         }
 
-        $qrCode = $apiResponse['data']['base64'] ?? $apiResponse['data']['qr'] ?? $apiResponse['data']['qrCode'] ?? $apiResponse['data']['qrcode'] ?? null;
+        $qrCode = $apiResponse['data']['qrcode']['base64']
+            ?? $apiResponse['data']['base64']
+            ?? $apiResponse['data']['qr']
+            ?? $apiResponse['data']['qrCode']
+            ?? $apiResponse['data']['qrcode']
+            ?? null;
 
         $this->json([
             'success' => true,
@@ -139,9 +149,7 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/delete/%s', urlencode($instance['instance_name'])),
-            'DELETE',
-            [],
-            $instance['api_key'] ?? null
+            'DELETE'
         );
 
         if (!$apiResponse['success']) {
@@ -175,9 +183,7 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/connect/%s', urlencode($instance['instance_name'])),
-            'GET',
-            [],
-            $instance['api_key'] ?? null
+            'GET'
         );
 
         if (!$apiResponse['success']) {
@@ -213,13 +219,16 @@ final class InstanceController extends Controller
 
         $apiResponse = $this->callCodeChatApi(
             sprintf('/instance/connectionState/%s', urlencode($instance['instance_name'])),
-            'GET',
-            [],
-            $instance['api_key'] ?? null
+            'GET'
         );
 
         if (!$apiResponse['success']) {
-            $fallback = $this->callCodeChatApi('/instance/fetchInstances', 'GET');
+            $fallback = $this->callCodeChatApi(
+                '/instance/fetchInstances',
+                'GET',
+                [],
+                $instance['api_key'] ?: null
+            );
             if ($fallback['success']) {
                 $statusRaw = $this->extractInstanceStatus($fallback['data'], $instance['instance_name']);
                 $status = $this->mapConnectionStatus((string) ($statusRaw ?? 'disconnected'));
@@ -306,8 +315,7 @@ final class InstanceController extends Controller
             [
                 'number' => $to,
                 'text' => $message,
-            ],
-            $instance['api_key'] ?? null
+            ]
         );
 
         if (!$apiResponse['success']) {
@@ -332,33 +340,13 @@ final class InstanceController extends Controller
         $ch = curl_init($url);
         $headers = ['Accept: application/json'];
         $apiKey = $this->config['api']['api_key'] ?? '';
-        $apiJwt = $this->config['api']['api_jwt'] ?? '';
-        $integration = $this->config['api']['integration'] ?? '';
         if ($apiKey === '') {
             return [
                 'success' => false,
                 'message' => 'Chave global da API não configurada.',
             ];
         }
-        if ($instanceToken === null && $apiJwt === '' && !str_starts_with($path, '/instance/create')) {
-            return [
-                'success' => false,
-                'message' => 'JWT da instância ausente. Conecte novamente para gerar o token.',
-            ];
-        }
-        if ($apiKey !== '') {
-            $headers[] = 'apikey: ' . $apiKey;
-        }
-        if ($integration !== '') {
-            $headers[] = 'integration: ' . $integration;
-        } elseif (str_starts_with($path, '/instance/create')) {
-            $headers[] = 'integration: evolution-api';
-        }
-        if ($instanceToken) {
-            $headers[] = 'Authorization: Bearer ' . $instanceToken;
-        } elseif ($apiJwt !== '') {
-            $headers[] = 'Authorization: Bearer ' . $apiJwt;
-        }
+        $headers[] = 'apikey: ' . ($instanceToken ?: $apiKey);
 
         if (in_array($method, ['POST', 'PUT', 'PATCH'], true)) {
             $headers[] = 'Content-Type: application/json';

@@ -69,6 +69,11 @@ if (!$isInstallRoute && !$envReady) {
 }
 
 $router->get('/', function () {
+    if (!isset($_SESSION['user_id'])) {
+        header('Location: /login');
+        exit;
+    }
+
     header('Location: /dashboard');
     exit;
 });

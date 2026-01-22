@@ -53,14 +53,12 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - A integração com CodeChat usa endpoints `/instance/create`, `/instance/fetchInstances` e `/instance/connectionState`.
 - As rotas internas do painel usam `/instances` (sem prefixo `/api`).
 - A chave global da API é configurada no `.env` como `API_KEY` (definida no assistente de instalação).
-- O JWT global opcional é configurado no `.env` como `API_JWT` (definido no assistente).
-- O token JWT de cada instância é salvo em `instances.api_key` após o `POST /instance/create` e usado nas chamadas seguintes (connect/status/send).
-- Em respostas HTTP 401, revise a `API_KEY` global e o JWT da instância.
+- A API Key específica da instância (campo `hash` da resposta) é salva em `instances.api_key` após o `POST /instance/create` e usada para `/instance/fetchInstances`.
 - O campo `api_key` não é exposto na listagem de instâncias por segurança.
 - Cada instância é vinculada ao usuário criador e só é visível para ele (admin visualiza todas).
-- O payload de criação inclui `name` e `instanceName` para compatibilidade com CodeChat v1 e Evolution API.
-- Defina `API_INTEGRATION=evolution-api` no `.env` (ou pelo instalador) para evitar o erro “Invalid integration”. Por padrão usamos `evolution-api`.
-- A criação de instâncias envia `qrcode=true` e `integration=WHATSAPP-BAILEYS` conforme a documentação da Evolution API.
+- O payload de criação utiliza `instanceName` conforme a documentação da Evolution API.
+- Defina `API_INTEGRATION=WHATSAPP-BAILEYS` no `.env` (ou pelo instalador) para refletir a integração padrão da Evolution API.
+- A criação de instâncias envia `qrcode=true` e `integration` conforme a documentação da Evolution API.
 - As rotas internas usam `GET /instances/{id}/status` e `GET /instances/{id}/connect` seguindo os endpoints `/instance/connectionState` e `/instance/connect` com `apikey`.
 - O status usa fallback automático para `/instance/fetchInstances` quando o endpoint de estado não responde corretamente.
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
