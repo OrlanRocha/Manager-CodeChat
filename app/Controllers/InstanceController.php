@@ -113,12 +113,7 @@ final class InstanceController extends Controller
             $instanceModel->updateToken($id, $token);
         }
 
-        $qrCode = $apiResponse['data']['qrcode']['base64']
-            ?? $apiResponse['data']['base64']
-            ?? $apiResponse['data']['qr']
-            ?? $apiResponse['data']['qrCode']
-            ?? $apiResponse['data']['qrcode']
-            ?? null;
+        $qrCode = $this->extractQrCode($apiResponse['data']);
 
         $this->json([
             'success' => true,
@@ -194,12 +189,7 @@ final class InstanceController extends Controller
             return;
         }
 
-        $qrCode = $apiResponse['data']['qrcode']['base64']
-            ?? $apiResponse['data']['base64']
-            ?? $apiResponse['data']['qr']
-            ?? $apiResponse['data']['qrCode']
-            ?? $apiResponse['data']['qrcode']
-            ?? null;
+        $qrCode = $this->extractQrCode($apiResponse['data']);
 
         $this->json([
             'success' => true,
@@ -481,6 +471,31 @@ final class InstanceController extends Controller
     private function extractConnectionStatus(array $data): string
     {
         return (string) ($data['state'] ?? $data['status'] ?? $data['connectionStatus'] ?? 'disconnected');
+    }
+
+    private function extractQrCode(array $data): ?string
+    {
+        if (isset($data['data']) && is_array($data['data'])) {
+            $data = $data['data'];
+        }
+
+        $directKeys = ['base64', 'qr', 'qrCode', 'qrcode', 'qr_code'];
+        foreach ($directKeys as $key) {
+            if (isset($data[$key]) && is_string($data[$key]) && $data[$key] !== '') {
+                return $data[$key];
+            }
+        }
+
+        if (isset($data['qrcode'])) {
+            if (is_array($data['qrcode']) && isset($data['qrcode']['base64']) && is_string($data['qrcode']['base64'])) {
+                return $data['qrcode']['base64'];
+            }
+            if (is_string($data['qrcode']) && $data['qrcode'] !== '') {
+                return $data['qrcode'];
+            }
+        }
+
+        return null;
     }
 
     private function extractApiMessage(array $data, int $status): string
