@@ -327,6 +327,8 @@ final class InstanceController extends Controller
         }
         if ($integration !== '') {
             $headers[] = 'integration: ' . $integration;
+        } elseif (str_starts_with($path, '/instance/create')) {
+            $headers[] = 'integration: evolution-api';
         }
         if ($instanceToken) {
             $headers[] = 'Authorization: Bearer ' . $instanceToken;

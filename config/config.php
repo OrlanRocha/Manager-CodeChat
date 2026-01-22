@@ -41,7 +41,7 @@ return [
         // Token JWT para autenticação.
         'api_jwt' => $env['API_JWT'] ?? '',
         // Integração alvo (ex.: evolution-api).
-        'integration' => $env['API_INTEGRATION'] ?? 'codechat',
+        'integration' => $env['API_INTEGRATION'] ?? 'evolution-api',
     ],
     'app' => [
         'base_path' => $basePath,
