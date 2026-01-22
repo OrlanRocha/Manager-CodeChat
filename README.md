@@ -59,6 +59,7 @@ Sistema de gerenciamento para instâncias da CodeChat API (Baileys) com arquitet
 - O campo `api_key` não é exposto na listagem de instâncias por segurança.
 - Cada instância é vinculada ao usuário criador e só é visível para ele (admin visualiza todas).
 - O payload de criação inclui `name` e `instanceName` para compatibilidade com CodeChat v1 e Evolution API.
+- Defina `API_INTEGRATION=evolution-api` no `.env` (ou pelo instalador) para evitar o erro “Invalid integration”.
 - O logger grava eventos no banco (tabela `logs`) e em arquivo (`storage/logs/app.log`).
 - A tela de usuários permite criar, editar, bloquear e excluir contas.
 

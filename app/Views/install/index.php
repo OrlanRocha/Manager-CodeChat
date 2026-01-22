@@ -48,6 +48,13 @@
                         <input name="api_timeout" type="number" class="w-full rounded-xl border border-slate-200 px-3 py-2" value="20">
                     </div>
                     <div>
+                        <label class="text-sm text-slate-600">Integração</label>
+                        <select name="api_integration" class="w-full rounded-xl border border-slate-200 px-3 py-2">
+                            <option value="codechat">CodeChat</option>
+                            <option value="evolution-api" selected>Evolution API</option>
+                        </select>
+                    </div>
+                    <div>
                         <label class="text-sm text-slate-600">Global API Key</label>
                         <input name="api_key" type="text" class="w-full rounded-xl border border-slate-200 px-3 py-2" placeholder="Cole a chave global da API">
                     </div>

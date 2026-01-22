@@ -309,6 +309,7 @@ final class InstanceController extends Controller
         $headers = ['Accept: application/json'];
         $apiKey = $this->config['api']['api_key'] ?? '';
         $apiJwt = $this->config['api']['api_jwt'] ?? '';
+        $integration = $this->config['api']['integration'] ?? '';
         if ($apiKey === '') {
             return [
                 'success' => false,
@@ -323,6 +324,9 @@ final class InstanceController extends Controller
         }
         if ($apiKey !== '') {
             $headers[] = 'apikey: ' . $apiKey;
+        }
+        if ($integration !== '') {
+            $headers[] = 'integration: ' . $integration;
         }
         if ($instanceToken) {
             $headers[] = 'Authorization: Bearer ' . $instanceToken;

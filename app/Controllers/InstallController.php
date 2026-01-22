@@ -82,7 +82,7 @@ final class InstallController extends Controller
         }
 
         $envContent = sprintf(
-            "DB_HOST=%s\nDB_NAME=%s\nDB_USER=%s\nDB_PASS=%s\nDB_CHARSET=%s\nAPI_BASE_URL=%s\nAPI_TIMEOUT=%d\nAPI_KEY=%s\nAPI_JWT=%s\n",
+            "DB_HOST=%s\nDB_NAME=%s\nDB_USER=%s\nDB_PASS=%s\nDB_CHARSET=%s\nAPI_BASE_URL=%s\nAPI_TIMEOUT=%d\nAPI_KEY=%s\nAPI_JWT=%s\nAPI_INTEGRATION=%s\n",
             $data['host'],
             $data['name'],
             $data['user'],
@@ -91,7 +91,8 @@ final class InstallController extends Controller
             $data['api_url'],
             $data['timeout'],
             $data['api_key'],
-            $data['api_jwt']
+            $data['api_jwt'],
+            $data['api_integration']
         );
 
         $envPath = $this->config['app']['base_path'] . '/.env';
@@ -169,6 +170,7 @@ final class InstallController extends Controller
             'timeout' => (int) ($input['api_timeout'] ?? 20),
             'api_key' => trim($input['api_key'] ?? ''),
             'api_jwt' => trim($input['api_jwt'] ?? ''),
+            'api_integration' => trim($input['api_integration'] ?? 'codechat'),
         ];
     }
 
